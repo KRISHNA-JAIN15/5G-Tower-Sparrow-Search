@@ -274,40 +274,58 @@ class RandomWalkSparrowSearchAlgorithm:
         return self.best_pos, self.best_fit
     
     def visualize_coverage(self):
-        """Visualize the coverage of the best solution"""
+        """Visualize the coverage of the best solution with detailed annotations"""
+        import matplotlib.pyplot as plt
+        import numpy as np
+
         L1, L2 = self.area_size
         m, n = self.grid_size
         x_grid = np.linspace(0, L1, m)
         y_grid = np.linspace(0, L2, n)
         X, Y = np.meshgrid(x_grid, y_grid)
-        
+
         # Calculate probability grid using joint probability
         prob_grid = joint_probability(self.best_pos, X, Y, self.Rs, self.Re, self.lambda_param)
-        
+
         # Create visualization
-        plt.figure(figsize=(10, 8))
-        
+        plt.figure(figsize=(12, 10))
+
         # Plot joint probability as a heatmap
-        contour = plt.contourf(X, Y, prob_grid, levels=20, cmap='viridis', alpha=0.7)
-        plt.colorbar(contour, label='Coverage Probability')
-        
+        contour = plt.contourf(X, Y, prob_grid, levels=30, cmap='viridis', alpha=0.8)
+        cbar = plt.colorbar(contour, label='Coverage Probability')
+        cbar.ax.tick_params(labelsize=10)
+
         # Plot base stations
-        plt.scatter(self.best_pos[:, 0], self.best_pos[:, 1], color='red', marker='x', s=100, label='Base Stations')
-        
+        plt.scatter(self.best_pos[:, 0], self.best_pos[:, 1], color='red', marker='x', s=120, label='Base Stations')
+
+        # Annotate base stations
+        for idx, (x, y) in enumerate(self.best_pos):
+            plt.text(x + 0.5, y + 0.5, f'BS{idx+1}', color='red', fontsize=9, weight='bold')
+
         # Plot coverage circles
         for x, y in self.best_pos:
-            circle_outer = plt.Circle((x, y), self.Rs, fill=False, color='red', linestyle='-', alpha=0.5)
-            circle_inner = plt.Circle((x, y), self.Rs - self.Re, fill=False, color='green', linestyle='--', alpha=0.5)
+            circle_outer = plt.Circle((x, y), self.Rs, fill=False, color='red', linestyle='-', alpha=0.6, label='Coverage Radius Rs')
+            circle_inner = plt.Circle((x, y), self.Rs - self.Re, fill=False, color='green', linestyle='--', alpha=0.6, label='Effective Radius (Rs-Re)')
             plt.gca().add_patch(circle_outer)
             plt.gca().add_patch(circle_inner)
-        
-        plt.title(f"Base Station Coverage (Max Coverage: {self.best_fit * 100:.2f}%)")
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
-        plt.legend()
+
+        # Remove duplicate legend entries
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        plt.legend(by_label.values(), by_label.keys(), fontsize=10, loc='upper right')
+
+        # Title and axis labels
+        plt.title(
+            f"Base Station Coverage\nMax Coverage: {self.best_fit * 100:.2f}% | "
+            f"Grid: {m}x{n} | Area: {L1}x{L2}", fontsize=14, weight='bold'
+        )
+        plt.xlabel("X Coordinate", fontsize=12)
+        plt.ylabel("Y Coordinate", fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.3)
+        plt.axis('equal')
         plt.tight_layout()
         plt.show()
+
         
     def visualize_convergence(self):
         """Plot the convergence history"""
@@ -328,9 +346,9 @@ if __name__ == "__main__":
     print("Running Random Walk SSA for Base Station Placement Optimization...")
     
     # Parameters
-    area_size = (15, 15)  # Area size (L1, L2)
-    grid_size = (100,100)
-    Rs = 2.2  # Coverage radius
+    area_size = (10, 10)  # Area size (L1, L2)
+    grid_size = (50 , 50)
+    Rs = 2.1  # Coverage radius
     Re = 1.0  # Inner radius for probability model
     lambda_param = 1.0  # Parameter for probability exponential decay
     
