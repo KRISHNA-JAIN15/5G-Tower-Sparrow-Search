@@ -1,0 +1,92 @@
+[
+  {
+    "variant": "Baseline (base)",
+    "run": 1,
+    "fitness": 791.4436099558766,
+    "time_s": 0.7577753067016602
+  },
+  {
+    "variant": "Baseline (base)",
+    "run": 2,
+    "fitness": 791.4436099558766,
+    "time_s": 0.7758986949920654
+  },
+  {
+    "variant": "Baseline (base)",
+    "run": 3,
+    "fitness": 791.4436099558766,
+    "time_s": 0.6852235794067383
+  },
+  {
+    "variant": "Base + Chaotic Init",
+    "run": 1,
+    "fitness": 614.4329938820692,
+    "time_s": 0.556262731552124
+  },
+  {
+    "variant": "Base + Chaotic Init",
+    "run": 2,
+    "fitness": 614.4329938820692,
+    "time_s": 0.5619626045227051
+  },
+  {
+    "variant": "Base + Chaotic Init",
+    "run": 3,
+    "fitness": 614.4329938820692,
+    "time_s": 0.9140267372131348
+  },
+  {
+    "variant": "Base + Potential Field",
+    "run": 1,
+    "fitness": 1290.2731844026628,
+    "time_s": 0.7694215774536133
+  },
+  {
+    "variant": "Base + Potential Field",
+    "run": 2,
+    "fitness": 1290.2731844026628,
+    "time_s": 0.7046449184417725
+  },
+  {
+    "variant": "Base + Potential Field",
+    "run": 3,
+    "fitness": 1290.2731844026628,
+    "time_s": 0.5672833919525146
+  },
+  {
+    "variant": "Base + Opposition-Based Learning",
+    "run": 1,
+    "fitness": 925.3384205923616,
+    "time_s": 0.7032294273376465
+  },
+  {
+    "variant": "Base + Opposition-Based Learning",
+    "run": 2,
+    "fitness": 925.3384205923616,
+    "time_s": 0.7057013511657715
+  },
+  {
+    "variant": "Base + Opposition-Based Learning",
+    "run": 3,
+    "fitness": 925.3384205923616,
+    "time_s": 0.7919049263000488
+  },
+  {
+    "variant": "All Combined",
+    "run": 1,
+    "fitness": 399.12930334673047,
+    "time_s": 1.0181584358215332
+  },
+  {
+    "variant": "All Combined",
+    "run": 2,
+    "fitness": 399.12930334673047,
+    "time_s": 1.0568158626556396
+  },
+  {
+    "variant": "All Combined",
+    "run": 3,
+    "fitness": 399.12930334673047,
+    "time_s": 1.044874668121338
+  }
+]

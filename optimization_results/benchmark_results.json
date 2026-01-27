@@ -1,0 +1,272 @@
+[
+  {
+    "Function": "Sphere",
+    "Variant": "Baseline",
+    "Mean": 4.511915772148794e-87,
+    "Std": 9.023831544297305e-87,
+    "Best": 3.513427323905033e-223,
+    "Worst": 2.2559578860743403e-86,
+    "Time_s": 0.15157008171081543
+  },
+  {
+    "Function": "Sphere",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 1.2069690641765805e-60,
+    "Std": 2.413938128353161e-60,
+    "Best": 3.0752935613342743e-141,
+    "Worst": 6.034845320882903e-60,
+    "Time_s": 0.15194802284240722
+  },
+  {
+    "Function": "Sphere",
+    "Variant": "Base + Potential Field",
+    "Mean": 7.357590291098178e-52,
+    "Std": 1.4715180581673454e-51,
+    "Best": 7.422568395226124e-66,
+    "Worst": 3.678795145444508e-51,
+    "Time_s": 0.18559813499450684
+  },
+  {
+    "Function": "Sphere",
+    "Variant": "Base + OBL",
+    "Mean": 3.0002626174055974e-68,
+    "Std": 6.000525234810403e-68,
+    "Best": 4.855517632498431e-148,
+    "Worst": 1.5001313087026407e-67,
+    "Time_s": 0.1595374584197998
+  },
+  {
+    "Function": "Sphere",
+    "Variant": "All Combined",
+    "Mean": 1.101201986520695e-53,
+    "Std": 2.20240397304139e-53,
+    "Best": 1.4927702778558937e-92,
+    "Worst": 5.506009932603475e-53,
+    "Time_s": 0.18517603874206542
+  },
+  {
+    "Function": "Rosenbrock",
+    "Variant": "Baseline",
+    "Mean": 28.125128339749004,
+    "Std": 0.37230987495746226,
+    "Best": 27.70295881580846,
+    "Worst": 28.764977086802638,
+    "Time_s": 0.19758143424987792
+  },
+  {
+    "Function": "Rosenbrock",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 28.356144480776486,
+    "Std": 0.2744985176794078,
+    "Best": 27.9825686724804,
+    "Worst": 28.802654531522787,
+    "Time_s": 0.1857304096221924
+  },
+  {
+    "Function": "Rosenbrock",
+    "Variant": "Base + Potential Field",
+    "Mean": 28.103620345056278,
+    "Std": 0.1252058626465789,
+    "Best": 27.893098462240914,
+    "Worst": 28.248956546255005,
+    "Time_s": 0.2218846321105957
+  },
+  {
+    "Function": "Rosenbrock",
+    "Variant": "Base + OBL",
+    "Mean": 28.52929693067653,
+    "Std": 0.34686538122564936,
+    "Best": 27.857915783783074,
+    "Worst": 28.79360750617792,
+    "Time_s": 0.1880253314971924
+  },
+  {
+    "Function": "Rosenbrock",
+    "Variant": "All Combined",
+    "Mean": 28.25490058058536,
+    "Std": 0.1765809088335248,
+    "Best": 27.980750467886253,
+    "Worst": 28.439114255617255,
+    "Time_s": 0.22717666625976562
+  },
+  {
+    "Function": "Ackley",
+    "Variant": "Baseline",
+    "Mean": 4.440892098500626e-16,
+    "Std": 0.0,
+    "Best": 4.440892098500626e-16,
+    "Worst": 4.440892098500626e-16,
+    "Time_s": 0.21995468139648439
+  },
+  {
+    "Function": "Ackley",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 4.440892098500626e-16,
+    "Std": 0.0,
+    "Best": 4.440892098500626e-16,
+    "Worst": 4.440892098500626e-16,
+    "Time_s": 0.20724105834960938
+  },
+  {
+    "Function": "Ackley",
+    "Variant": "Base + Potential Field",
+    "Mean": 4.440892098500626e-16,
+    "Std": 0.0,
+    "Best": 4.440892098500626e-16,
+    "Worst": 4.440892098500626e-16,
+    "Time_s": 0.2416715145111084
+  },
+  {
+    "Function": "Ackley",
+    "Variant": "Base + OBL",
+    "Mean": 4.440892098500626e-16,
+    "Std": 0.0,
+    "Best": 4.440892098500626e-16,
+    "Worst": 4.440892098500626e-16,
+    "Time_s": 0.21036286354064943
+  },
+  {
+    "Function": "Ackley",
+    "Variant": "All Combined",
+    "Mean": 4.440892098500626e-16,
+    "Std": 0.0,
+    "Best": 4.440892098500626e-16,
+    "Worst": 4.440892098500626e-16,
+    "Time_s": 0.24882287979125978
+  },
+  {
+    "Function": "Rastrigin",
+    "Variant": "Baseline",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.17557406425476074
+  },
+  {
+    "Function": "Rastrigin",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.17215538024902344
+  },
+  {
+    "Function": "Rastrigin",
+    "Variant": "Base + Potential Field",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.207230806350708
+  },
+  {
+    "Function": "Rastrigin",
+    "Variant": "Base + OBL",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.18041272163391114
+  },
+  {
+    "Function": "Rastrigin",
+    "Variant": "All Combined",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.2577706813812256
+  },
+  {
+    "Function": "Griewank",
+    "Variant": "Baseline",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.27790074348449706
+  },
+  {
+    "Function": "Griewank",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.24424800872802735
+  },
+  {
+    "Function": "Griewank",
+    "Variant": "Base + Potential Field",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.32054572105407714
+  },
+  {
+    "Function": "Griewank",
+    "Variant": "Base + OBL",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.2855834007263184
+  },
+  {
+    "Function": "Griewank",
+    "Variant": "All Combined",
+    "Mean": 0.0,
+    "Std": 0.0,
+    "Best": 0.0,
+    "Worst": 0.0,
+    "Time_s": 0.297059154510498
+  },
+  {
+    "Function": "Schwefel",
+    "Variant": "Baseline",
+    "Mean": 6160.116380924633,
+    "Std": 590.8900179425714,
+    "Best": 5026.616931499304,
+    "Worst": 6691.45690391978,
+    "Time_s": 0.22177982330322266
+  },
+  {
+    "Function": "Schwefel",
+    "Variant": "Base + Chaotic Init",
+    "Mean": 5351.65396232495,
+    "Std": 531.6335651765412,
+    "Best": 4547.822569072533,
+    "Worst": 6157.560159608767,
+    "Time_s": 0.19501643180847167
+  },
+  {
+    "Function": "Schwefel",
+    "Variant": "Base + Potential Field",
+    "Mean": 5983.747553205426,
+    "Std": 561.5913884608258,
+    "Best": 4928.942640734958,
+    "Worst": 6442.489589249104,
+    "Time_s": 0.28103928565979003
+  },
+  {
+    "Function": "Schwefel",
+    "Variant": "Base + OBL",
+    "Mean": 6035.548940298788,
+    "Std": 690.9069754435044,
+    "Best": 4751.897327798712,
+    "Worst": 6737.573813419097,
+    "Time_s": 0.18882570266723633
+  },
+  {
+    "Function": "Schwefel",
+    "Variant": "All Combined",
+    "Mean": 5280.384607734985,
+    "Std": 368.3260960025797,
+    "Best": 4842.185111026057,
+    "Worst": 5752.438728680151,
+    "Time_s": 0.23354649543762207
+  }
+]

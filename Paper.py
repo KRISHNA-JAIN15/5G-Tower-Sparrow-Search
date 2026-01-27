@@ -517,22 +517,28 @@ class EnhancedSparrowSearchAlgorithm:
             max_iter=self.max_iter
         )
 
-    def calculate_potential_forces(self, current_pos, station_idx, all_positions):
+    def calculate_potential_forces(self, current_pos, station_idx, all_positions, current_iter=0):
         """
-        IMPROVEMENT 4: Artificial Potential Fields
+        IMPROVEMENT 4: Enhanced Adaptive Potential Fields
         Calculates a force vector based on:
-        1. Attraction to Pit Centers (Gravity)
-        2. Repulsion from Other Stations (Electrostatics)
+        1. Attraction to Pit Centers (adaptive strength)
+        2. Repulsion from Other Stations (with overlap penalty)
         3. Repulsion from Avoidance Zones
+        4. Boundary repulsion (soft constraint)
+        5. Stagnation escape force
         """
         force_x, force_y = 0.0, 0.0
+        progress = current_iter / max(1, self.max_iter)
+        
+        # Adaptive strength: increases attraction as optimization progresses
+        attract_strength = 2.0 + 3.0 * progress  # 2.0 -> 5.0
+        repel_strength = 8.0 * (1 - 0.5 * progress)  # 8.0 -> 4.0
         
         # 1. Attraction to Pits (Pull towards target areas)
         for center in self.pit_centers:
             dist = np.sqrt((current_pos[0] - center[0])**2 + (current_pos[1] - center[1])**2)
-            if dist > 0.1: # Avoid division by zero
-                # Force is proportional to distance
-                f_mag = 2.0 / dist 
+            if dist > 0.1:
+                f_mag = attract_strength / (dist + 0.5)
                 dx = center[0] - current_pos[0]
                 dy = center[1] - current_pos[1]
                 force_x += f_mag * (dx / dist)
@@ -542,58 +548,95 @@ class EnhancedSparrowSearchAlgorithm:
         for i, other_pos in enumerate(all_positions):
             if i != station_idx:
                 dist = np.sqrt((current_pos[0] - other_pos[0])**2 + (current_pos[1] - other_pos[1])**2)
-                # Only repel if they are too close (overlapping coverage)
-                if dist < self.Rs * 1.8 and dist > 0.01:
-                    # Inverse square law repulsion
-                    f_mag = 5.0 / (dist**2)
+                if dist < self.Rs * 2.0 and dist > 0.01:
+                    # Stronger repulsion when very close
+                    f_mag = repel_strength / (dist**2 + 0.1)
                     dx = current_pos[0] - other_pos[0]
                     dy = current_pos[1] - other_pos[1]
-                    # Moving AWAY from other station, so subtract the vector or use negative magnitude?
-                    # Vector from Other to Current is (current - other). We want to move along this vector.
-                    # My dx/dy above is (current - other), so positive magnitude pushes away.
                     force_x += f_mag * (dx / dist)
                     force_y += f_mag * (dy / dist)
         
-        # 3. Repulsion from Avoidance Zones (Safety push)
+        # 3. Repulsion from Avoidance Zones
         for i, region in enumerate(self.avoidance_regions):
             cx = np.mean(region[:, 0])
             cy = np.mean(region[:, 1])
             dist = np.sqrt((current_pos[0] - cx)**2 + (current_pos[1] - cy)**2)
             
-            if dist < 4.0: # Heuristic proximity
-                f_mag = -10.0 / (dist + 0.1) # Negative magnitude implies attraction to centroid? No.
-                # Vector is (Centroid - Current). We want to move Opposite.
-                # If f_mag is negative, it pushes away from centroid.
+            if dist < 5.0:
+                f_mag = -12.0 / (dist + 0.2)
                 dx = cx - current_pos[0]
                 dy = cy - current_pos[1]
-                force_x += f_mag * (dx / dist)
-                force_y += f_mag * (dy / dist)
+                force_x += f_mag * (dx / max(dist, 0.1))
+                force_y += f_mag * (dy / max(dist, 0.1))
+        
+        # 4. Boundary repulsion (soft constraint to keep away from edges)
+        margin = self.boundary_buffer * 1.5
+        if current_pos[0] < margin:
+            force_x += 2.0 * (margin - current_pos[0])
+        elif current_pos[0] > self.area_size[0] - margin:
+            force_x -= 2.0 * (current_pos[0] - (self.area_size[0] - margin))
+        if current_pos[1] < margin:
+            force_y += 2.0 * (margin - current_pos[1])
+        elif current_pos[1] > self.area_size[1] - margin:
+            force_y -= 2.0 * (current_pos[1] - (self.area_size[1] - margin))
+        
+        # 5. Stagnation escape: add random perturbation if stuck
+        if hasattr(self, 'no_improvement_count') and self.no_improvement_count > 10:
+            escape_strength = min(1.0, 0.1 * (self.no_improvement_count - 10))
+            force_x += escape_strength * np.random.randn()
+            force_y += escape_strength * np.random.randn()
 
-        # Normalize and cap the force
+        # Normalize and cap the force (adaptive max force)
         total_mag = np.sqrt(force_x**2 + force_y**2)
-        max_force = 1.5
+        max_force = 2.0 * (1 - 0.3 * progress)  # 2.0 -> 1.4
         if total_mag > max_force:
             force_x = (force_x / total_mag) * max_force
             force_y = (force_y / total_mag) * max_force
             
         return np.array([force_x, force_y])
 
+    def _tent_map(self, x):
+        """Tent chaotic map for better uniformity"""
+        return 2 * x if x < 0.5 else 2 * (1 - x)
+    
+    def _logistic_map(self, x):
+        """Logistic chaotic map"""
+        return 4.0 * x * (1 - x)
+    
+    def _sinusoidal_map(self, x):
+        """Sinusoidal chaotic map for diversity"""
+        return abs(np.sin(np.pi * x))
+
     def initialize_positions(self):
         """
-        IMPROVEMENT 1: Chaotic Initialization with Fallback
+        IMPROVEMENT 1: Enhanced Chaotic Initialization
+        Uses hybrid Tent-Logistic-Sinusoidal maps for better coverage.
         Ensures valid positions for all sparrows.
         """
         positions = []
         min_dist = self.Rs * 1.5
         
-        # 1. Generate chaotic sequence vector
-        # Buffer multiplier to ensure we have enough numbers even with retries
+        # Initialize chaotic sequences with different maps
+        x_tent = np.random.rand()
+        x_logistic = np.random.rand()
+        x_sin = np.random.rand()
+        
+        # Generate hybrid chaotic sequence
         total_nums = self.num_sparrows * self.num_stations * 2 * 20
         chaotic_seq = np.zeros(total_nums)
-        x = np.random.rand() 
+        
         for i in range(total_nums):
-            x = 4.0 * x * (1 - x) # Logistic map
-            chaotic_seq[i] = x
+            x_tent = self._tent_map(x_tent)
+            x_logistic = self._logistic_map(x_logistic)
+            x_sin = self._sinusoidal_map(x_sin)
+            
+            # Hybrid combination based on index for diversity
+            if i % 3 == 0:
+                chaotic_seq[i] = x_tent
+            elif i % 3 == 1:
+                chaotic_seq[i] = x_logistic
+            else:
+                chaotic_seq[i] = 0.5 * x_tent + 0.3 * x_logistic + 0.2 * x_sin
             
         # 2. Map chaotic sequence to search space
         seq_idx = 0
@@ -676,30 +719,72 @@ class EnhancedSparrowSearchAlgorithm:
         
         return constrained_position
     
+    def _levy_flight_2d(self, beta=1.5):
+        """Generate 2D Lévy flight step for enhanced exploration"""
+        sigma_u = (np.math.gamma(1 + beta) * np.sin(np.pi * beta / 2) /
+                   (np.math.gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
+        u = np.random.randn(2) * sigma_u
+        v = np.random.randn(2)
+        step = u / (np.abs(v) ** (1 / beta))
+        return step
+
     def opposition_based_learning_jump(self, current_iter):
-        """IMPROVEMENT 2: Opposition-Based Learning (OBL)"""
+        """
+        IMPROVEMENT 2: Enhanced Opposition-Based Learning (OBL)
+        - Generalized quasi-opposition with random factor
+        - Lévy-flight enhanced opposition for exploration
+        - Selective application based on fitness ranking
+        """
         lb = self.boundary_buffer
         ub_x = self.area_size[0] - self.boundary_buffer
         ub_y = self.area_size[1] - self.boundary_buffer
+        progress = current_iter / max(1, self.max_iter)
         
-        candidates_idx = np.random.choice(self.num_sparrows, max(1, int(0.2 * self.num_sparrows)), replace=False)
+        # Apply OBL to bottom 30% performers more frequently
+        sorted_idx = np.argsort(-self.fitness)  # Descending (worst first for maximization)
+        num_candidates = max(2, int(0.3 * self.num_sparrows))
+        candidate_pool = sorted_idx[-num_candidates:]  # Worst performers
+        candidates_idx = np.random.choice(candidate_pool, max(1, int(0.5 * num_candidates)), replace=False)
         
         for i in candidates_idx:
             original_pos = self.positions[i].copy()
             original_fit = self.fitness[i]
             
+            # 1. Basic opposition
             opposite_pos = np.zeros_like(original_pos)
-            opposite_pos[:, 0] = lb + ub_x - original_pos[:, 0] # Flip X
-            opposite_pos[:, 1] = lb + ub_y - original_pos[:, 1] # Flip Y
+            opposite_pos[:, 0] = lb + ub_x - original_pos[:, 0]
+            opposite_pos[:, 1] = lb + ub_y - original_pos[:, 1]
             
+            # 2. Quasi-opposition with random factor
+            k = np.random.uniform(0.5, 1.0)
+            center_x = (lb + ub_x) / 2
+            center_y = (lb + ub_y) / 2
+            quasi_opposite = np.zeros_like(original_pos)
+            quasi_opposite[:, 0] = center_x + k * (center_x - original_pos[:, 0])
+            quasi_opposite[:, 1] = center_y + k * (center_y - original_pos[:, 1])
+            
+            # 3. Lévy-enhanced opposition (exploration boost)
+            levy_opposite = opposite_pos.copy()
             for j in range(self.num_stations):
-                opposite_pos[j] = self.enforce_constraints(opposite_pos[j])
-                
-            opposite_fit = self.coverage_ratio_multi_region(opposite_pos, current_iter=current_iter)
+                levy_step = self._levy_flight_2d() * 0.5 * (1 - progress)
+                levy_opposite[j] += levy_step
             
-            if opposite_fit > original_fit:
-                self.positions[i] = opposite_pos
-                self.fitness[i] = opposite_fit
+            # Enforce constraints on all candidates
+            candidates = [opposite_pos, quasi_opposite, levy_opposite]
+            for cand in candidates:
+                for j in range(self.num_stations):
+                    cand[j] = self.enforce_constraints(cand[j])
+            
+            # Evaluate all candidates and pick the best
+            fits = [self.coverage_ratio_multi_region(c, current_iter=current_iter) for c in candidates]
+            best_idx = np.argmax(fits)
+            best_candidate = candidates[best_idx]
+            best_fit = fits[best_idx]
+            
+            # Accept if better than original
+            if best_fit > original_fit:
+                self.positions[i] = best_candidate
+                self.fitness[i] = best_fit
 
     def update_roles(self):
         sorted_indices = np.argsort(-self.fitness)
@@ -708,7 +793,7 @@ class EnhancedSparrowSearchAlgorithm:
         self.scroungers = sorted_indices[num_producers:]
     
     def update_producers(self, iteration):
-        """Update producer positions with Adaptive Step + POTENTIAL FIELDS"""
+        """Update producer positions with Adaptive Step + Enhanced POTENTIAL FIELDS"""
         alpha = 0.8
         ST = 0.6
         
@@ -718,8 +803,8 @@ class EnhancedSparrowSearchAlgorithm:
             current_config = self.positions[i]
             
             for j in range(self.num_stations):
-                # Calculate Physics Force
-                force_vector = self.calculate_potential_forces(self.positions[i][j], j, current_config)
+                # Calculate Physics Force with current iteration for adaptive strength
+                force_vector = self.calculate_potential_forces(self.positions[i][j], j, current_config, current_iter=iteration)
                 
                 # Standard SSA Movement
                 if np.random.rand() < ST:
@@ -761,8 +846,8 @@ class EnhancedSparrowSearchAlgorithm:
         self.positions[index][station_index][0] = 0.7 * pos_x + 0.3 * new_x
         self.positions[index][station_index][1] = 0.7 * pos_y + 0.3 * new_y
     
-    def update_scroungers(self):
-        """Update scroungers with POTENTIAL FIELDS influence"""
+    def update_scroungers(self, iteration=0):
+        """Update scroungers with Enhanced POTENTIAL FIELDS influence"""
         best_producer_idx = self.producers[0]
         
         for i in self.scroungers:
@@ -779,14 +864,14 @@ class EnhancedSparrowSearchAlgorithm:
                     self.positions[i][j] += K * np.abs(self.positions[i][j] - self.positions[worst_idx][j])
             else:
                 for j in range(self.num_stations):
-                    # Calculate Physics Force for this station
-                    force_vector = self.calculate_potential_forces(self.positions[i][j], j, current_config)
+                    # Calculate Physics Force for this station with iteration
+                    force_vector = self.calculate_potential_forces(self.positions[i][j], j, current_config, current_iter=iteration)
                     
                     A = np.random.randn(2)
                     move_vec = np.random.rand() * A * (self.positions[best_producer_idx][j] - self.positions[i][j])
                     
-                    # Apply Hybrid: Follow Leader + Physics Nudge
-                    self.positions[i][j] += move_vec + (0.2 * force_vector)
+                    # Apply Hybrid: Follow Leader + Physics Nudge (increased from 0.2)
+                    self.positions[i][j] += move_vec + (0.3 * force_vector)
             
             for j in range(self.num_stations):
                 self.positions[i][j] = self.enforce_constraints(self.positions[i][j])
@@ -876,7 +961,7 @@ class EnhancedSparrowSearchAlgorithm:
             
             self.update_roles()
             self.update_producers(iter)
-            self.update_scroungers()
+            self.update_scroungers(iter)
             
             if (iter + 1) % 3 == 0:
                 self.random_walk(iter)

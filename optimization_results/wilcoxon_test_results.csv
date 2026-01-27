@@ -1,0 +1,6 @@
+Function,p-value,Verdict
+Schwefel (F1),0.00018267179110955002,Significant (✓)
+Lunacek (F2),0.00018267179110955002,Significant (✓)
+Styblinski (F3),0.00018267179110955002,Significant (✓)
+Qing (F4),0.00018267179110955002,Significant (✓)
+Sphere (F5),0.00018267179110955002,Significant (✓)
